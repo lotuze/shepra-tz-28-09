@@ -5,6 +5,7 @@ declare(strict_types=1);
 use DI\ContainerBuilder;
 use App\Infrastructure\DatabaseConnectionParameters;
 use App\Controller\ProductImageController;
+use App\Controller\AuthController;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\ORM\EntityManager;
@@ -15,9 +16,15 @@ use Psr\Container\ContainerInterface;
 use App\Entity\Product;
 use App\Entity\ProductAttribute;
 use App\Entity\ProductImage;
+use App\Entity\User;
 use App\Repository\ProductAttributeRepository;
 use App\Repository\ProductImageRepository;
 use App\Repository\ProductRepository;
+use App\Repository\UserRepository;
+use App\Security\JwtService;
+use App\Security\ImportRateLimiter;
+use App\Middleware\JwtAuthMiddleware;
+use App\Middleware\ImportRateLimitMiddleware;
 use App\Entity\ImportError;
 use App\Entity\ImportJob;
 use App\Import\ImageDownloader;
@@ -72,7 +79,7 @@ $builder->addDefinitions([
         );
         $config->setSchemaAssetsFilter(static function (string|AbstractAsset $asset): bool {
             $name = $asset instanceof AbstractAsset ? $asset->getName() : $asset;
-            return $name !== 'doctrine_migration_versions';
+            return !in_array($name, ['doctrine_migration_versions', 'import_rate_limits'], true);
         });
 
         return new EntityManager(DriverManager::getConnection(DatabaseConnectionParameters::fromEnvironment(), $config), $config);
@@ -83,6 +90,26 @@ $builder->addDefinitions([
         $entityManager = $container->get(EntityManagerInterface::class);
         return new ProductRepository($entityManager, $entityManager->getClassMetadata(Product::class));
     },
+    UserRepository::class => static function (ContainerInterface $container): UserRepository {
+        $entityManager = $container->get(EntityManagerInterface::class);
+        return new UserRepository($entityManager, $entityManager->getClassMetadata(User::class));
+    },
+    JwtService::class => static function (): JwtService {
+        $secret = $_ENV['JWT_SECRET'] ?? getenv('JWT_SECRET');
+        if (!is_string($secret) || $secret === '') { throw new RuntimeException('JWT_SECRET is required.'); }
+        return new JwtService($secret, (int) ($_ENV['JWT_TTL'] ?? getenv('JWT_TTL') ?: 3600));
+    },
+    AuthController::class => static fn (ContainerInterface $container): AuthController => new AuthController(
+        $container->get(UserRepository::class),
+        $container->get(JwtService::class),
+    ),
+    JwtAuthMiddleware::class => static fn (ContainerInterface $container): JwtAuthMiddleware => new JwtAuthMiddleware($container->get(JwtService::class)),
+    ImportRateLimiter::class => static fn (ContainerInterface $container): ImportRateLimiter => new ImportRateLimiter(
+        $container->get(EntityManagerInterface::class)->getConnection(),
+        (int) ($_ENV['IMPORT_RATE_LIMIT'] ?? getenv('IMPORT_RATE_LIMIT') ?: 5),
+        (int) ($_ENV['IMPORT_RATE_WINDOW_SECONDS'] ?? getenv('IMPORT_RATE_WINDOW_SECONDS') ?: 60),
+    ),
+    ImportRateLimitMiddleware::class => static fn (ContainerInterface $container): ImportRateLimitMiddleware => new ImportRateLimitMiddleware($container->get(ImportRateLimiter::class)),
     ProductAttributeRepository::class => static function (ContainerInterface $container): ProductAttributeRepository {
         $entityManager = $container->get(EntityManagerInterface::class);
         return new ProductAttributeRepository($entityManager, $entityManager->getClassMetadata(ProductAttribute::class));

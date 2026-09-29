@@ -14,18 +14,24 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final class ImportApiTest extends TestCase
 {
+    use AuthenticationTrait;
+
+    protected function setUp(): void
+    {
+        TestKernel::$entityManager->getConnection()->executeStatement('DELETE FROM import_rate_limits');
+    }
     public function testUploadReturns202AndStatusEndpoint(): void
     {
         $temporary = $this->copyFixture();
         $upload = new UploadedFile($temporary, 'import-example.xlsx', null, filesize($temporary));
-        $request = (new ServerRequestFactory())->createServerRequest('POST', '/api/imports')->withUploadedFiles(['file' => $upload]);
+        $request = $this->authorized((new ServerRequestFactory())->createServerRequest('POST', '/api/imports')->withUploadedFiles(['file' => $upload]));
         $response = TestKernel::app()->handle($request);
         $payload = $this->payload($response);
         self::assertSame(202, $response->getStatusCode());
         self::assertSame(ImportJob::QUEUED, $payload['status']);
         self::assertSame('/api/imports/' . $payload['id'], $payload['statusUrl']);
 
-        $status = TestKernel::app()->handle((new ServerRequestFactory())->createServerRequest('GET', $payload['statusUrl']));
+        $status = TestKernel::app()->handle($this->authorized((new ServerRequestFactory())->createServerRequest('GET', $payload['statusUrl'])));
         self::assertSame(200, $status->getStatusCode());
         self::assertSame(0, $this->payload($status)['progress']);
         $this->removeJob((int) $payload['id']);
@@ -34,17 +40,17 @@ final class ImportApiTest extends TestCase
     public function testRejectsWrongExtensionAndMime(): void
     {
         $temporary = $this->copyFixture();
-        $request = (new ServerRequestFactory())->createServerRequest('POST', '/api/imports')->withUploadedFiles([
+        $request = $this->authorized((new ServerRequestFactory())->createServerRequest('POST', '/api/imports')->withUploadedFiles([
             'file' => new UploadedFile($temporary, 'import.csv', null, filesize($temporary)),
-        ]);
+        ]));
         self::assertSame(400, TestKernel::app()->handle($request)->getStatusCode());
         if (is_file($temporary)) { unlink($temporary); }
 
         $text = tempnam(sys_get_temp_dir(), 'bad-xlsx-');
         file_put_contents($text, 'not an xlsx');
-        $request = (new ServerRequestFactory())->createServerRequest('POST', '/api/imports')->withUploadedFiles([
+        $request = $this->authorized((new ServerRequestFactory())->createServerRequest('POST', '/api/imports')->withUploadedFiles([
             'file' => new UploadedFile($text, 'import.xlsx', null, filesize($text)),
-        ]);
+        ]));
         self::assertSame(400, TestKernel::app()->handle($request)->getStatusCode());
         if (is_file($text)) { unlink($text); }
     }

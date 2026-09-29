@@ -10,6 +10,10 @@ services:
       APP_ENV: ${APP_ENV:-dev}
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@db:5432/${POSTGRES_DB:-app}?serverVersion=16&charset=utf8
       MESSENGER_TRANSPORT_DSN: amqp://${RABBITMQ_DEFAULT_USER:-app}:${RABBITMQ_DEFAULT_PASS:-app}@rabbitmq:5672/%2f
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-before-production-123456}
+      JWT_TTL: ${JWT_TTL:-3600}
+      IMPORT_RATE_LIMIT: ${IMPORT_RATE_LIMIT:-5}
+      IMPORT_RATE_WINDOW_SECONDS: ${IMPORT_RATE_WINDOW_SECONDS:-60}
     command: ["sh", "-c", "mkdir -p storage/imports storage/images storage/cache/doctrine-proxies && chown -R www-data:www-data storage && exec php-fpm"]
     volumes:
       - ./backend:/var/www/html
@@ -30,6 +34,10 @@ services:
       APP_ENV: ${APP_ENV:-dev}
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@db:5432/${POSTGRES_DB:-app}?serverVersion=16&charset=utf8
       MESSENGER_TRANSPORT_DSN: amqp://${RABBITMQ_DEFAULT_USER:-app}:${RABBITMQ_DEFAULT_PASS:-app}@rabbitmq:5672/%2f
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-before-production-123456}
+      JWT_TTL: ${JWT_TTL:-3600}
+      IMPORT_RATE_LIMIT: ${IMPORT_RATE_LIMIT:-5}
+      IMPORT_RATE_WINDOW_SECONDS: ${IMPORT_RATE_WINDOW_SECONDS:-60}
     command: ["php", "bin/console", "messenger:consume", "async"]
     volumes:
       - ./backend:/var/www/html

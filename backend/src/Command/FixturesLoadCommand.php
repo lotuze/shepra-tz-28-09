@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\DataFixtures\ProductFixtures;
+use App\DataFixtures\UserFixtures;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
@@ -37,10 +38,11 @@ final class FixturesLoadCommand extends Command
         $connection->executeStatement('ALTER TABLE products ALTER COLUMN id RESTART WITH 1');
         $connection->executeStatement('ALTER TABLE product_attributes ALTER COLUMN id RESTART WITH 1');
         $connection->executeStatement('ALTER TABLE product_images ALTER COLUMN id RESTART WITH 1');
+        $connection->executeStatement('ALTER TABLE users ALTER COLUMN id RESTART WITH 1');
 
         $executor = new ORMExecutor($this->entityManager, $purger);
-        $executor->execute([new ProductFixtures()], append: true);
-        $io->success('Loaded 30 products with deterministic attributes and images.');
+        $executor->execute([new ProductFixtures(), new UserFixtures()], append: true);
+        $io->success('Loaded 30 products and demo user with deterministic data.');
 
         return Command::SUCCESS;
     }

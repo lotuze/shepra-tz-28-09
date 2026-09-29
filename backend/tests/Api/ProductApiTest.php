@@ -10,6 +10,7 @@ use Slim\Psr7\Factory\ServerRequestFactory;
 
 final class ProductApiTest extends TestCase
 {
+    use AuthenticationTrait;
     public function testProductList(): void
     {
         $response = $this->request('/api/products?page=2&limit=10');
@@ -47,7 +48,7 @@ final class ProductApiTest extends TestCase
 
     private function request(string $uri): \Psr\Http\Message\ResponseInterface
     {
-        $request = (new ServerRequestFactory())->createServerRequest('GET', $uri);
+        $request = $this->authorized((new ServerRequestFactory())->createServerRequest('GET', $uri));
         return TestKernel::app()->handle($request);
     }
 

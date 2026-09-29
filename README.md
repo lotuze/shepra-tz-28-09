@@ -14,6 +14,8 @@ make up
 - Angular dev server: http://localhost:4200
 - RabbitMQ management: http://localhost:15672
 
+Demo login: `admin@example.com` / `ChangeMe123!` (development only).
+
 Useful commands: `make logs`, `make shell`, `make migrate`, `make down`.
 
 Backend data commands:
@@ -25,7 +27,12 @@ make schema-validate
 make test
 ```
 
-Read-only product API:
+Authenticate first with `POST /api/auth/login`. Pass the returned token as
+`Authorization: Bearer <token>`. Public endpoints are `GET /api/health`,
+`POST /api/auth/login`, and `GET /api/product-images/{id}/content`. Product and
+import endpoints are protected.
+
+Protected read-only product API:
 
 - `GET /api/products?page=1&limit=20`
 - `GET /api/products?name=бермуды`
@@ -37,7 +44,9 @@ Read-only product API:
 Start an import with multipart field `file`:
 
 ```bash
-curl -F file=@backend/tests/Fixtures/import-example.xlsx http://localhost:8080/api/imports
+curl -H "Authorization: Bearer TOKEN" \
+  -F file=@backend/tests/Fixtures/import-example.xlsx \
+  http://localhost:8080/api/imports
 ```
 
 Poll `GET /api/imports/{id}` for counters, progress and the first 100 errors.
@@ -62,3 +71,14 @@ suffix after `Доп. поле: `. `Ссылка на упаковку` and `С�
 two exceptions: they are combined and interpreted as image URLs. An unavailable
 image produces a warning and a `ProductImage` with `path = null`; it does not
 prevent the product from being imported.
+
+Import creation is limited per authenticated user by a PostgreSQL-backed fixed
+window. Defaults are 5 requests per 60 seconds and can be changed with
+`IMPORT_RATE_LIMIT` and `IMPORT_RATE_WINDOW_SECONDS`. A rejected request returns
+HTTP 429 with `Retry-After` before a file, job, or queue message is created.
+
+The Angular application stores the short-lived JWT and user data in
+`localStorage`. It has no refresh token, roles, registration, or password reset;
+an expired token requires logging in again. Configure the signing key and token
+lifetime with `JWT_SECRET` and `JWT_TTL`; the provided secret is only for local
+development.
