@@ -1,0 +1,16 @@
+/.env
+/.idea/
+/backend/vendor/
+/backend/.phpunit.cache/
+/backend/storage/*
+!/backend/storage/.gitkeep
+!/backend/storage/cache/
+!/backend/storage/logs/
+/backend/storage/cache/*
+!/backend/storage/cache/.gitkeep
+/backend/storage/logs/*
+!/backend/storage/logs/.gitkeep
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.angular/
+*.log
