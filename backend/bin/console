@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 use App\Command\FixturesLoadCommand;
 use App\Command\ValidateSchemaCommand;
+use App\Command\MessengerConsumeCommand;
 use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
 use Doctrine\Migrations\Configuration\Migration\PhpFile;
 use Doctrine\Migrations\DependencyFactory;
@@ -16,11 +17,18 @@ use Doctrine\Migrations\Tools\Console\Command\StatusCommand;
 use Doctrine\Migrations\Tools\Console\Command\UpToDateCommand;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Transport\TransportInterface;
+use Psr\Log\LoggerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 $container = require dirname(__DIR__) . '/src/bootstrap.php';
 $entityManager = $container->get(EntityManagerInterface::class);
+if (str_starts_with($argv[1] ?? '', 'migrations:')) {
+    $entityManager->getConnection()->getConfiguration()->setSchemaAssetsFilter(static fn (): bool => true);
+}
 $dependencyFactory = DependencyFactory::fromEntityManager(
     new PhpFile(dirname(__DIR__) . '/config/migrations.php'),
     new ExistingEntityManager($entityManager),
@@ -36,5 +44,11 @@ $application->addCommands([
     new UpToDateCommand($dependencyFactory),
     new FixturesLoadCommand($entityManager),
     new ValidateSchemaCommand($entityManager),
+    new MessengerConsumeCommand(
+        $container->get(TransportInterface::class),
+        $container->get(MessageBusInterface::class),
+        $container->get(LoggerInterface::class),
+        $container->get(EventDispatcherInterface::class),
+    ),
 ]);
 $application->run();

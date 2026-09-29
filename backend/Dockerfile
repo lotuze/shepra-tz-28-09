@@ -5,7 +5,7 @@ FROM php:8.3-fpm-alpine AS base
 RUN apk add --no-cache icu-libs libpq libzip rabbitmq-c libpng libjpeg-turbo freetype oniguruma && \
     apk add --no-cache --virtual .build-deps $PHPIZE_DEPS icu-dev postgresql-dev libzip-dev rabbitmq-c-dev libpng-dev libjpeg-turbo-dev freetype-dev oniguruma-dev libxml2-dev && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
-    docker-php-ext-install gd intl mbstring pdo_pgsql xml zip && \
+    docker-php-ext-install gd intl mbstring pcntl pdo_pgsql xml zip && \
     pecl install amqp && \
     docker-php-ext-enable amqp && \
     apk del .build-deps

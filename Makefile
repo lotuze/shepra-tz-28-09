@@ -1,4 +1,4 @@
-.PHONY: up down build logs shell migrate fixtures schema-validate test
+.PHONY: up down build logs shell migrate fixtures schema-validate test worker-logs worker-restart
 
 up:
 	docker compose up -d
@@ -26,3 +26,9 @@ schema-validate:
 
 test:
 	docker compose exec -e APP_ENV=test app vendor/bin/phpunit
+
+worker-logs:
+	docker compose logs -f worker
+
+worker-restart:
+	docker compose restart worker

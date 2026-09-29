@@ -6,10 +6,16 @@
 !/backend/storage/.gitkeep
 !/backend/storage/cache/
 !/backend/storage/logs/
+!/backend/storage/imports/
+!/backend/storage/images/
 /backend/storage/cache/*
 !/backend/storage/cache/.gitkeep
 /backend/storage/logs/*
 !/backend/storage/logs/.gitkeep
+/backend/storage/imports/*
+!/backend/storage/imports/.gitkeep
+/backend/storage/images/*
+!/backend/storage/images/.gitkeep
 /frontend/node_modules/
 /frontend/dist/
 /frontend/.angular/

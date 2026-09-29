@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controller\ProductController;
+use App\Controller\ImportController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Factory\AppFactory;
@@ -22,5 +23,7 @@ $app->get('/api/health', function (
 
 $app->get('/api/products', [ProductController::class, 'index']);
 $app->get('/api/products/{id:[0-9]+}', [ProductController::class, 'show']);
+$app->post('/api/imports', [ImportController::class, 'create']);
+$app->get('/api/imports/{id:[0-9]+}', [ImportController::class, 'show']);
 
 return $app;
