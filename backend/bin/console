@@ -1,0 +1,40 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use App\Command\FixturesLoadCommand;
+use App\Command\ValidateSchemaCommand;
+use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
+use Doctrine\Migrations\Configuration\Migration\PhpFile;
+use Doctrine\Migrations\DependencyFactory;
+use Doctrine\Migrations\Tools\Console\Command\CurrentCommand;
+use Doctrine\Migrations\Tools\Console\Command\LatestCommand;
+use Doctrine\Migrations\Tools\Console\Command\ListCommand;
+use Doctrine\Migrations\Tools\Console\Command\MigrateCommand;
+use Doctrine\Migrations\Tools\Console\Command\StatusCommand;
+use Doctrine\Migrations\Tools\Console\Command\UpToDateCommand;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Application;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+$container = require dirname(__DIR__) . '/src/bootstrap.php';
+$entityManager = $container->get(EntityManagerInterface::class);
+$dependencyFactory = DependencyFactory::fromEntityManager(
+    new PhpFile(dirname(__DIR__) . '/config/migrations.php'),
+    new ExistingEntityManager($entityManager),
+);
+
+$application = new Application('Product Import CLI');
+$application->addCommands([
+    new MigrateCommand($dependencyFactory),
+    new StatusCommand($dependencyFactory),
+    new CurrentCommand($dependencyFactory),
+    new LatestCommand($dependencyFactory),
+    new ListCommand($dependencyFactory),
+    new UpToDateCommand($dependencyFactory),
+    new FixturesLoadCommand($entityManager),
+    new ValidateSchemaCommand($entityManager),
+]);
+$application->run();

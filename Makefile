@@ -1,4 +1,4 @@
-.PHONY: up down build logs shell migrate
+.PHONY: up down build logs shell migrate fixtures schema-validate test
 
 up:
 	docker compose up -d
@@ -16,4 +16,13 @@ shell:
 	docker compose exec app sh
 
 migrate:
-	docker compose exec app vendor/bin/doctrine-migrations migrate --no-interaction
+	docker compose exec app php bin/console migrations:migrate --no-interaction
+
+fixtures:
+	docker compose exec app php bin/console fixtures:load --no-interaction
+
+schema-validate:
+	docker compose exec app php bin/console orm:validate-schema
+
+test:
+	docker compose exec -e APP_ENV=test app vendor/bin/phpunit

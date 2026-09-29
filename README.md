@@ -16,6 +16,22 @@ make up
 
 Useful commands: `make logs`, `make shell`, `make migrate`, `make down`.
 
+Backend data commands:
+
+```bash
+make migrate
+make fixtures
+make schema-validate
+make test
+```
+
+Read-only product API:
+
+- `GET /api/products?page=1&limit=20`
+- `GET /api/products?name=бермуды`
+- `GET /api/products?minPrice=500&maxPrice=1500`
+- `GET /api/products/{id}`
+
 The worker intentionally stays idle until Messenger routing and the `async`
 transport are configured. Then replace its Compose command with:
 
