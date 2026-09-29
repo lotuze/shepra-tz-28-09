@@ -34,12 +34,27 @@ class ProductAttribute
         $this->value = $value;
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getProduct(): ?Product { return $this->product; }
-    public function getKey(): string { return $this->key; }
-    public function getValue(): ?string { return $this->value; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+    public function getProduct(): ?Product
+    {
+        return $this->product;
+    }
+    public function getKey(): string
+    {
+        return $this->key;
+    }
+    public function getValue(): ?string
+    {
+        return $this->value;
+    }
 
-    public function setProduct(Product $product): void { $this->product = $product; }
+    public function setProduct(Product $product): void
+    {
+        $this->product = $product;
+    }
 
     public function unsetProduct(Product $product): void
     {

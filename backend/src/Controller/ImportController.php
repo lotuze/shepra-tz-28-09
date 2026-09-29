@@ -16,15 +16,22 @@ final class ImportController
         private readonly ImportSubmissionService $submissions,
         private readonly ImportJobRepository $jobs,
         private readonly ImportErrorRepository $errors,
-    ) {}
+    ) {
+    }
 
     public function create(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $file = $request->getUploadedFiles()['file'] ?? null;
-        if ($file === null) { return $this->json($response, ['error' => 'Multipart field "file" is required.'], 400); }
-        try { $job = $this->submissions->submit($file); }
-        catch (\InvalidArgumentException $exception) { return $this->json($response, ['error' => $exception->getMessage()], 400); }
-        catch (\Throwable) { return $this->json($response, ['error' => 'Unable to queue import.'], 500); }
+        if ($file === null) {
+            return $this->json($response, ['error' => 'Multipart field "file" is required.'], 400);
+        }
+        try {
+            $job = $this->submissions->submit($file);
+        } catch (\InvalidArgumentException $exception) {
+            return $this->json($response, ['error' => $exception->getMessage()], 400);
+        } catch (\Throwable) {
+            return $this->json($response, ['error' => 'Unable to queue import.'], 500);
+        }
         return $this->json($response, [
             'id' => $job->getId(),
             'status' => $job->getStatus(),
@@ -35,7 +42,9 @@ final class ImportController
     public function show(ServerRequestInterface $request, ResponseInterface $response, array $arguments): ResponseInterface
     {
         $job = $this->jobs->findById((int) $arguments['id']);
-        if ($job === null) { return $this->json($response, ['error' => 'Import job not found.'], 404); }
+        if ($job === null) {
+            return $this->json($response, ['error' => 'Import job not found.'], 404);
+        }
         $errors = $this->errors->firstForJob($job);
         return $this->json($response, [
             'id' => $job->getId(), 'originalFilename' => $job->getOriginalFilename(), 'status' => $job->getStatus(),

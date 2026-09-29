@@ -44,7 +44,9 @@ final class ImportApiTest extends TestCase
             'file' => new UploadedFile($temporary, 'import.csv', null, filesize($temporary)),
         ]));
         self::assertSame(400, TestKernel::app()->handle($request)->getStatusCode());
-        if (is_file($temporary)) { unlink($temporary); }
+        if (is_file($temporary)) {
+            unlink($temporary);
+        }
 
         $text = tempnam(sys_get_temp_dir(), 'bad-xlsx-');
         file_put_contents($text, 'not an xlsx');
@@ -52,7 +54,9 @@ final class ImportApiTest extends TestCase
             'file' => new UploadedFile($text, 'import.xlsx', null, filesize($text)),
         ]));
         self::assertSame(400, TestKernel::app()->handle($request)->getStatusCode());
-        if (is_file($text)) { unlink($text); }
+        if (is_file($text)) {
+            unlink($text);
+        }
     }
 
     public function testRejectsOversizedFile(): void
@@ -65,8 +69,13 @@ final class ImportApiTest extends TestCase
             1,
         );
         $this->expectException(\InvalidArgumentException::class);
-        try { $service->submit(new UploadedFile($temporary, 'import.xlsx', null, filesize($temporary))); }
-        finally { if (is_file($temporary)) { unlink($temporary); } }
+        try {
+            $service->submit(new UploadedFile($temporary, 'import.xlsx', null, filesize($temporary)));
+        } finally {
+            if (is_file($temporary)) {
+                unlink($temporary);
+            }
+        }
     }
 
     private function copyFixture(): string
@@ -81,8 +90,11 @@ final class ImportApiTest extends TestCase
         $job = TestKernel::$entityManager->find(ImportJob::class, $id);
         if ($job !== null) {
             $path = dirname(__DIR__, 2) . '/storage/' . $job->getStoredPath();
-            TestKernel::$entityManager->remove($job); TestKernel::$entityManager->flush();
-            if (is_file($path)) { unlink($path); }
+            TestKernel::$entityManager->remove($job);
+            TestKernel::$entityManager->flush();
+            if (is_file($path)) {
+                unlink($path);
+            }
         }
     }
 

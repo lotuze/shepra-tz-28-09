@@ -16,5 +16,6 @@ final readonly class ProductRow
         public string $discount,
         public array $attributes,
         public array $imageUrls,
-    ) {}
+    ) {
+    }
 }

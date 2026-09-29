@@ -37,17 +37,25 @@ final class User
         return mb_strtolower(trim($email));
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getEmail(): string { return $this->email; }
-    public function getPasswordHash(): string { return $this->passwordHash; }
-    public function getCreatedAt(): DateTimeImmutable { return $this->createdAt; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+    public function getPasswordHash(): string
+    {
+        return $this->passwordHash;
+    }
+    public function getCreatedAt(): DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 
     public function setPassword(string $plainPassword): void
     {
-        $hash = password_hash($plainPassword, PASSWORD_DEFAULT);
-        if (!is_string($hash)) {
-            throw new \RuntimeException('Unable to hash password.');
-        }
-        $this->passwordHash = $hash;
+        $this->passwordHash = password_hash($plainPassword, PASSWORD_DEFAULT);
     }
 }

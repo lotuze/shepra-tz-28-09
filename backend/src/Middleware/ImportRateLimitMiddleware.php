@@ -13,7 +13,9 @@ use Slim\Psr7\Response;
 
 final class ImportRateLimitMiddleware implements MiddlewareInterface
 {
-    public function __construct(private readonly ImportRateLimiter $limiter) {}
+    public function __construct(private readonly ImportRateLimiter $limiter)
+    {
+    }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

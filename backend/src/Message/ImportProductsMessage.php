@@ -6,5 +6,7 @@ namespace App\Message;
 
 final readonly class ImportProductsMessage
 {
-    public function __construct(public int $importJobId) {}
+    public function __construct(public int $importJobId)
+    {
+    }
 }

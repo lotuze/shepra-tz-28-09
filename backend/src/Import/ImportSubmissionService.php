@@ -23,18 +23,30 @@ final class ImportSubmissionService
         private readonly MessageBusInterface $bus,
         private readonly string $storagePath,
         private readonly int $maxFileSize,
-    ) {}
+    ) {
+    }
 
     public function submit(UploadedFileInterface $file): ImportJob
     {
-        if ($file->getError() !== UPLOAD_ERR_OK) { throw new \InvalidArgumentException('File upload failed.'); }
+        if ($file->getError() !== UPLOAD_ERR_OK) {
+            throw new \InvalidArgumentException('File upload failed.');
+        }
         $originalName = $file->getClientFilename() ?? '';
-        if (strtolower(pathinfo($originalName, PATHINFO_EXTENSION)) !== 'xlsx') { throw new \InvalidArgumentException('Only XLSX files are allowed.'); }
-        if (($file->getSize() ?? 0) <= 0 || ($file->getSize() ?? 0) > $this->maxFileSize) { throw new \InvalidArgumentException('Uploaded file size is invalid.'); }
+        if (strtolower(pathinfo($originalName, PATHINFO_EXTENSION)) !== 'xlsx') {
+            throw new \InvalidArgumentException('Only XLSX files are allowed.');
+        }
+        $size = $file->getSize();
+        if ($size <= 0 || $size > $this->maxFileSize) {
+            throw new \InvalidArgumentException('Uploaded file size is invalid.');
+        }
         $temporaryPath = $file->getStream()->getMetadata('uri');
-        if (!is_string($temporaryPath)) { throw new \InvalidArgumentException('Unable to inspect uploaded file.'); }
+        if (!is_string($temporaryPath)) {
+            throw new \InvalidArgumentException('Unable to inspect uploaded file.');
+        }
         $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($temporaryPath);
-        if (!in_array($mime, self::MIME_TYPES, true)) { throw new \InvalidArgumentException('Uploaded file MIME type is not allowed.'); }
+        if (!in_array($mime, self::MIME_TYPES, true)) {
+            throw new \InvalidArgumentException('Uploaded file MIME type is not allowed.');
+        }
 
         $relative = 'imports/' . bin2hex(random_bytes(20)) . '.xlsx';
         $absolute = $this->storagePath . '/' . $relative;
@@ -55,7 +67,9 @@ final class ImportSubmissionService
             }
             return $job;
         } catch (\Throwable $exception) {
-            if (is_file($absolute)) { unlink($absolute); }
+            if (is_file($absolute)) {
+                unlink($absolute);
+            }
             throw $exception;
         }
     }

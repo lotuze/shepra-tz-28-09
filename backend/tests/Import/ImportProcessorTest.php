@@ -15,8 +15,8 @@ use App\Import\ProductImportService;
 use App\Import\ProductRowMapper;
 use App\Import\ProductRowValidator;
 use App\Import\SpreadsheetReader;
-use App\Repository\ImportJobRepository;
 use App\Repository\ImportErrorRepository;
+use App\Repository\ImportJobRepository;
 use App\Repository\ProductRepository;
 use App\Tests\TestKernel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -38,7 +38,8 @@ final class ImportProcessorTest extends TestCase
         ]);
         (new Xlsx($sheet->getParent()))->save($absolute);
         $job = new ImportJob('mixed.xlsx', $relative);
-        TestKernel::$entityManager->persist($job); TestKernel::$entityManager->flush();
+        TestKernel::$entityManager->persist($job);
+        TestKernel::$entityManager->flush();
         $this->processor(new FakeImageDownloader(true))->process($job->getId());
         TestKernel::$entityManager->clear();
         $job = TestKernel::$entityManager->find(ImportJob::class, $job->getId());
@@ -62,15 +63,19 @@ final class ImportProcessorTest extends TestCase
             $relative = 'imports/real-' . $run . '.xlsx';
             copy($fixture, dirname(__DIR__, 2) . '/storage/' . $relative);
             $job = new ImportJob('import-example.xlsx', $relative);
-            TestKernel::$entityManager->persist($job); TestKernel::$entityManager->flush();
+            TestKernel::$entityManager->persist($job);
+            TestKernel::$entityManager->flush();
             $this->processor(new FakeImageDownloader())->process($job->getId());
             TestKernel::$entityManager->clear();
             $job = TestKernel::$entityManager->find(ImportJob::class, $job->getId());
             self::assertSame(ImportJob::COMPLETED, $job->getStatus());
             self::assertSame(40, $job->getSuccessfulRows());
             $count = TestKernel::$entityManager->getRepository(Product::class)->count([]);
-            if ($run === 1) { self::assertSame($before + 40, $count); }
-            else { self::assertSame($before + 40, $count); }
+            if ($run === 1) {
+                self::assertSame($before + 40, $count);
+            } else {
+                self::assertSame($before + 40, $count);
+            }
             unlink(dirname(__DIR__, 2) . '/storage/' . $relative);
         }
         TestKernel::$entityManager->getConnection()->executeStatement("DELETE FROM products WHERE external_code NOT LIKE 'SKU-%'");

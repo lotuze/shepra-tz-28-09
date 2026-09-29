@@ -1,0 +1,6 @@
+extends:
+  - minimal
+
+rules:
+  # Local development URLs are intentionally the only servers for this test project.
+  no-server-example.com: off

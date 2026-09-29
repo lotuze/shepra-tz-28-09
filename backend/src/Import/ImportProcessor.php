@@ -22,7 +22,8 @@ final class ImportProcessor
         private readonly ProductImportService $products,
         private readonly LoggerInterface $logger,
         private readonly string $storagePath,
-    ) {}
+    ) {
+    }
 
     public function process(int $jobId): void
     {
@@ -75,7 +76,10 @@ final class ImportProcessor
         } catch (\Throwable $exception) {
             $this->entityManager->clear();
             $job = $this->jobs->findById($jobId);
-            if ($job !== null) { $job->fail($exception->getMessage()); $this->entityManager->flush(); }
+            if ($job !== null) {
+                $job->fail($exception->getMessage());
+                $this->entityManager->flush();
+            }
         }
     }
 

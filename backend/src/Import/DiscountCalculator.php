@@ -6,7 +6,9 @@ namespace App\Import;
 
 final class DiscountCalculator
 {
-    public function __construct(private readonly DecimalNormalizer $decimals) {}
+    public function __construct(private readonly DecimalNormalizer $decimals)
+    {
+    }
 
     public function calculate(string $salePrice, string $purchasePrice): string
     {

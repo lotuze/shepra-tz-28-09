@@ -57,11 +57,32 @@ class ImportError
         $this->createdAt = new DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getRowNumber(): ?int { return $this->rowNumber; }
-    public function getExternalCode(): ?string { return $this->externalCode; }
-    public function getSeverity(): string { return $this->severity; }
-    public function getMessage(): string { return $this->message; }
-    public function getRawData(): ?array { return $this->rawData; }
-    public function getCreatedAt(): DateTimeImmutable { return $this->createdAt; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+    public function getRowNumber(): ?int
+    {
+        return $this->rowNumber;
+    }
+    public function getExternalCode(): ?string
+    {
+        return $this->externalCode;
+    }
+    public function getSeverity(): string
+    {
+        return $this->severity;
+    }
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
+    public function getRawData(): ?array
+    {
+        return $this->rawData;
+    }
+    public function getCreatedAt(): DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }

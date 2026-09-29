@@ -1,31 +1,52 @@
 # Product Import
 
-Minimal full-stack environment for a future XLSX product importer.
+Full-stack XLSX product importer: Slim 4 and Doctrine ORM expose a JWT-protected
+API, Symfony Messenger sends import jobs through RabbitMQ, and an Angular 20
+standalone application uses NgRx for the product list. PostgreSQL stores the
+catalog, import state, users, and per-user import rate limits.
 
-## Start
+## Clean start
 
 ```bash
+git clone <repository-url>
+cd shepra
 cp .env.example .env
 make build
 make up
+make migrate
+make fixtures
 ```
 
+- Frontend: http://localhost:4200
 - Backend health: http://localhost:8080/api/health
-- Angular dev server: http://localhost:4200
 - RabbitMQ management: http://localhost:15672
 
 Demo login: `admin@example.com` / `ChangeMe123!` (development only).
 
-Useful commands: `make logs`, `make shell`, `make migrate`, `make down`.
+Useful runtime commands: `make logs`, `make shell`, `make migrate`,
+`make fixtures`, `make worker-logs`, `make worker-restart`, and `make down`.
 
-Backend data commands:
+## Quality checks
 
 ```bash
-make migrate
-make fixtures
-make schema-validate
 make test
+make phpstan
+make cs-check
+make cs-fix
+make openapi-validate
+make schema-validate
 ```
+
+`cs-check` is a read-only PHP CS Fixer check; `cs-fix` applies formatting.
+The OpenAPI 3.0.3 document is at `docs/openapi.yaml`, with Redocly configuration
+in `docs/redocly.yaml`.
+
+GitHub Actions runs Composer validation, PHP CS Fixer, PHPStan level 5,
+Doctrine migrations and schema validation, PHPUnit, Angular unit tests and
+production build, and OpenAPI validation. CI uses PHP 8.3, Node.js 22, and
+PostgreSQL 16; it does not deploy or publish images.
+
+## Authentication and API
 
 Authenticate first with `POST /api/auth/login`. Pass the returned token as
 `Authorization: Bearer <token>`. Public endpoints are `GET /api/health`,
@@ -70,7 +91,8 @@ Every non-empty `Доп. поле: ...` column becomes an attribute whose key is
 suffix after `Доп. поле: `. `Ссылка на упаковку` and `Ссылки на фото` are the
 two exceptions: they are combined and interpreted as image URLs. An unavailable
 image produces a warning and a `ProductImage` with `path = null`; it does not
-prevent the product from being imported.
+prevent the product from being imported. External image servers may return HTTP
+403; this is recorded as a warning, not a failed row.
 
 Import creation is limited per authenticated user by a PostgreSQL-backed fixed
 window. Defaults are 5 requests per 60 seconds and can be changed with

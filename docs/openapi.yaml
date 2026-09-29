@@ -1,0 +1,525 @@
+openapi: 3.0.3
+info:
+  title: Product Import API
+  version: 1.0.0
+  description: Read-only product catalog and asynchronous XLSX import API.
+servers:
+  - url: http://localhost:8080
+    description: nginx backend
+  - url: http://localhost:4200
+    description: Angular development proxy
+security:
+  - bearerAuth: []
+tags:
+  - name: System
+    description: Service availability endpoints.
+  - name: Authentication
+    description: JWT authentication.
+  - name: Products
+    description: Read-only product catalog.
+  - name: Imports
+    description: Asynchronous XLSX import submission and status.
+paths:
+  /api/health:
+    get:
+      tags: [System]
+      operationId: getHealth
+      summary: Check API health
+      security: []
+      responses:
+        '200':
+          description: API is available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+  /api/auth/login:
+    post:
+      tags: [Authentication]
+      operationId: login
+      summary: Authenticate with email and password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: admin@example.com
+              password: ChangeMe123!
+      responses:
+        '200':
+          description: Authentication succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/products:
+    get:
+      tags: [Products]
+      operationId: listProducts
+      summary: List and filter products
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: name
+          in: query
+          description: Case-insensitive name fragment.
+          schema:
+            type: string
+          example: бермуды
+        - name: minPrice
+          in: query
+          schema:
+            $ref: '#/components/schemas/NonNegativeDecimal'
+          example: '500.00'
+        - name: maxPrice
+          in: query
+          schema:
+            $ref: '#/components/schemas/NonNegativeDecimal'
+          example: '1500.00'
+      responses:
+        '200':
+          description: Paginated products ordered by id descending.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/products/{id}:
+    get:
+      tags: [Products]
+      operationId: getProduct
+      summary: Get product details
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Product with attributes and images.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/product-images/{id}/content:
+    get:
+      tags: [Products]
+      operationId: getProductImageContent
+      summary: Read locally downloaded product image
+      description: Public endpoint suitable for a browser image element.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Image bytes. The concrete Content-Type is determined from file contents.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              example: public, max-age=86400, immutable
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Image record, local path, or valid image file was not found.
+  /api/imports:
+    post:
+      tags: [Imports]
+      operationId: createImport
+      summary: Queue an XLSX product import
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: XLSX workbook subject to IMPORT_MAX_FILE_SIZE.
+      responses:
+        '202':
+          description: File was stored and its import message was queued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportSubmissionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          description: Request body exceeds the HTTP server upload limit.
+        '429':
+          description: Per-user import creation limit exceeded.
+          headers:
+            Retry-After:
+              description: Seconds until another import request can be attempted.
+              required: true
+              schema:
+                type: integer
+                minimum: 1
+                example: 60
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: Import rate limit exceeded. Please try again later.
+        '500':
+          description: The upload could not be stored or queued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: Unable to queue import.
+  /api/imports/{id}:
+    get:
+      tags: [Imports]
+      operationId: getImportStatus
+      summary: Get asynchronous import status
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Current counters, progress, and at most the first 100 errors.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJob'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+  responses:
+    BadRequest:
+      description: Invalid request data.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Missing, invalid, or expired Bearer JWT.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: Unauthorized.
+    NotFound:
+      description: Requested resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: Invalid request.
+    LoginRequest:
+      type: object
+      required: [email, password]
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          format: email
+          example: admin@example.com
+        password:
+          type: string
+          format: password
+          example: ChangeMe123!
+    LoginResponse:
+      type: object
+      required: [token, user, expiresAt]
+      properties:
+        token:
+          type: string
+          description: HS256 JSON Web Token.
+          example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+        user:
+          $ref: '#/components/schemas/User'
+        expiresAt:
+          type: string
+          format: date-time
+          example: '2026-09-29T18:00:00+00:00'
+    User:
+      type: object
+      required: [id, email]
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          format: email
+          example: admin@example.com
+    Decimal:
+      type: string
+      pattern: '^-?\d+\.\d{2}$'
+      example: '1320.00'
+    NonNegativeDecimal:
+      type: string
+      pattern: '^\d{1,10}(?:\.\d{1,2})?$'
+    ProductSummary:
+      type: object
+      required: [id, externalCode, name, description, price, discount]
+      properties:
+        id:
+          type: integer
+          example: 1
+        externalCode:
+          type: string
+          example: EXT-001
+        name:
+          type: string
+          example: Бермуды мужские
+        description:
+          type: string
+          example: Летние хлопковые бермуды.
+        price:
+          $ref: '#/components/schemas/Decimal'
+        discount:
+          $ref: '#/components/schemas/Decimal'
+    ProductDetail:
+      allOf:
+        - $ref: '#/components/schemas/ProductSummary'
+        - type: object
+          required: [attributes, images]
+          properties:
+            attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProductAttribute'
+            images:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProductImage'
+    ProductAttribute:
+      type: object
+      required: [key, value]
+      properties:
+        key:
+          type: string
+          example: Размер
+        value:
+          type: string
+          nullable: true
+          example: 46(M)
+    ProductImage:
+      type: object
+      required: [id, url, path, contentUrl]
+      properties:
+        id:
+          type: integer
+          example: 1
+        url:
+          type: string
+          format: uri
+          example: https://example.com/image.jpg
+        path:
+          type: string
+          nullable: true
+          example: images/a1b2c3.jpg
+        contentUrl:
+          type: string
+          example: /api/product-images/1/content
+    PaginationMeta:
+      type: object
+      required: [page, limit, total, totalPages]
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          example: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 20
+        total:
+          type: integer
+          minimum: 0
+          example: 40
+        totalPages:
+          type: integer
+          minimum: 0
+          example: 2
+    ProductListResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductSummary'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    ImportStatus:
+      type: string
+      enum: [queued, processing, completed, completed_with_errors, failed]
+    ImportSubmissionResponse:
+      type: object
+      required: [id, status, statusUrl]
+      properties:
+        id:
+          type: integer
+          example: 42
+        status:
+          $ref: '#/components/schemas/ImportStatus'
+        statusUrl:
+          type: string
+          example: /api/imports/42
+    ImportError:
+      type: object
+      required: [id, rowNumber, externalCode, severity, message, rawData, createdAt]
+      properties:
+        id:
+          type: integer
+          example: 3
+        rowNumber:
+          type: integer
+          nullable: true
+          example: 12
+        externalCode:
+          type: string
+          nullable: true
+          example: EXT-012
+        severity:
+          type: string
+          enum: [error, warning]
+        message:
+          type: string
+          example: Image download failed.
+        rawData:
+          type: object
+          nullable: true
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+    ImportJob:
+      type: object
+      required:
+        - id
+        - originalFilename
+        - status
+        - totalRows
+        - processedRows
+        - successfulRows
+        - failedRows
+        - progress
+        - errors
+        - errorsTotal
+        - createdAt
+        - startedAt
+        - finishedAt
+        - fatalError
+      properties:
+        id:
+          type: integer
+          example: 42
+        originalFilename:
+          type: string
+          example: import-example.xlsx
+        status:
+          $ref: '#/components/schemas/ImportStatus'
+        totalRows:
+          type: integer
+          minimum: 0
+          example: 30
+        processedRows:
+          type: integer
+          minimum: 0
+          example: 30
+        successfulRows:
+          type: integer
+          minimum: 0
+          example: 29
+        failedRows:
+          type: integer
+          minimum: 0
+          example: 1
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 100
+        errors:
+          type: array
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/ImportError'
+        errorsTotal:
+          type: integer
+          minimum: 0
+          example: 2
+        createdAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+          nullable: true
+        finishedAt:
+          type: string
+          format: date-time
+          nullable: true
+        fatalError:
+          type: string
+          nullable: true

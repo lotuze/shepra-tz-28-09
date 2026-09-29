@@ -6,7 +6,8 @@
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
-    "test": "ng test --watch=false"
+    "test": "ng test --watch=false",
+    "openapi:validate": "redocly lint ${OPENAPI_SPEC:-../docs/openapi.yaml} --config=${OPENAPI_CONFIG:-../docs/redocly.yaml}"
   },
   "dependencies": {
     "@angular/animations": "^20.3.32",
@@ -29,6 +30,7 @@
     "@angular/build": "^20.0.0",
     "@angular/cli": "^20.0.0",
     "@angular/compiler-cli": "^20.3.32",
+    "@redocly/cli": "^2.55.0",
     "@types/jasmine": "^7.0.0",
     "jasmine-core": "^7.0.2",
     "jsdom": "^30.1.1",

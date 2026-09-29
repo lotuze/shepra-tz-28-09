@@ -9,7 +9,10 @@ use Doctrine\Migrations\AbstractMigration;
 
 final class Version20260929170000 extends AbstractMigration
 {
-    public function getDescription(): string { return 'Create users and PostgreSQL-backed import rate limits'; }
+    public function getDescription(): string
+    {
+        return 'Create users and PostgreSQL-backed import rate limits';
+    }
 
     public function up(Schema $schema): void
     {

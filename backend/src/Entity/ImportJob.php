@@ -69,18 +69,54 @@ class ImportJob
         $this->errors = new ArrayCollection();
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getOriginalFilename(): string { return $this->originalFilename; }
-    public function getStoredPath(): string { return $this->storedPath; }
-    public function getStatus(): string { return $this->status; }
-    public function getTotalRows(): int { return $this->totalRows; }
-    public function getProcessedRows(): int { return $this->processedRows; }
-    public function getSuccessfulRows(): int { return $this->successfulRows; }
-    public function getFailedRows(): int { return $this->failedRows; }
-    public function getFatalError(): ?string { return $this->fatalError; }
-    public function getCreatedAt(): DateTimeImmutable { return $this->createdAt; }
-    public function getStartedAt(): ?DateTimeImmutable { return $this->startedAt; }
-    public function getFinishedAt(): ?DateTimeImmutable { return $this->finishedAt; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+    public function getOriginalFilename(): string
+    {
+        return $this->originalFilename;
+    }
+    public function getStoredPath(): string
+    {
+        return $this->storedPath;
+    }
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+    public function getTotalRows(): int
+    {
+        return $this->totalRows;
+    }
+    public function getProcessedRows(): int
+    {
+        return $this->processedRows;
+    }
+    public function getSuccessfulRows(): int
+    {
+        return $this->successfulRows;
+    }
+    public function getFailedRows(): int
+    {
+        return $this->failedRows;
+    }
+    public function getFatalError(): ?string
+    {
+        return $this->fatalError;
+    }
+    public function getCreatedAt(): DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+    public function getStartedAt(): ?DateTimeImmutable
+    {
+        return $this->startedAt;
+    }
+    public function getFinishedAt(): ?DateTimeImmutable
+    {
+        return $this->finishedAt;
+    }
 
     public function start(int $totalRows): void
     {

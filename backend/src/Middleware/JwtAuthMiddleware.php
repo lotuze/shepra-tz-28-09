@@ -13,7 +13,9 @@ use Slim\Psr7\Response;
 
 final class JwtAuthMiddleware implements MiddlewareInterface
 {
-    public function __construct(private readonly JwtService $jwt) {}
+    public function __construct(private readonly JwtService $jwt)
+    {
+    }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

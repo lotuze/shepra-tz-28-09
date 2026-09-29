@@ -9,7 +9,10 @@ use Doctrine\Migrations\AbstractMigration;
 
 final class Version20260929140000 extends AbstractMigration
 {
-    public function getDescription(): string { return 'Create import jobs and import errors'; }
+    public function getDescription(): string
+    {
+        return 'Create import jobs and import errors';
+    }
 
     public function up(Schema $schema): void
     {

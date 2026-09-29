@@ -72,20 +72,50 @@ class Product
         $this->images = new ArrayCollection();
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getExternalCode(): string { return $this->externalCode; }
-    public function getName(): string { return $this->name; }
-    public function getDescription(): string { return $this->description; }
-    public function getPrice(): string { return $this->price; }
-    public function getDiscount(): string { return $this->discount; }
-    public function getCreatedAt(): DateTimeImmutable { return $this->createdAt; }
-    public function getUpdatedAt(): DateTimeImmutable { return $this->updatedAt; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+    public function getExternalCode(): string
+    {
+        return $this->externalCode;
+    }
+    public function getName(): string
+    {
+        return $this->name;
+    }
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+    public function getPrice(): string
+    {
+        return $this->price;
+    }
+    public function getDiscount(): string
+    {
+        return $this->discount;
+    }
+    public function getCreatedAt(): DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+    public function getUpdatedAt(): DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
 
     /** @return Collection<int, ProductAttribute> */
-    public function getAttributes(): Collection { return $this->attributes; }
+    public function getAttributes(): Collection
+    {
+        return $this->attributes;
+    }
 
     /** @return Collection<int, ProductImage> */
-    public function getImages(): Collection { return $this->images; }
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
 
     public function updateDetails(
         string $name,

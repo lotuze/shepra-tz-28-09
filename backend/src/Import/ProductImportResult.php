@@ -7,5 +7,7 @@ namespace App\Import;
 final readonly class ProductImportResult
 {
     /** @param list<string> $warnings */
-    public function __construct(public array $warnings) {}
+    public function __construct(public array $warnings)
+    {
+    }
 }

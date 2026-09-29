@@ -18,7 +18,8 @@ final class ProductImportService
         private readonly ProductRowValidator $validator,
         private readonly ImageDownloaderInterface $images,
         private readonly string $storagePath,
-    ) {}
+    ) {
+    }
 
     public function import(ProductRow $row): ProductImportResult
     {
@@ -26,8 +27,9 @@ final class ProductImportService
         $downloads = [];
         $warnings = [];
         foreach ($row->imageUrls as $url) {
-            try { $downloads[$url] = $this->images->download($url); }
-            catch (\Throwable $exception) {
+            try {
+                $downloads[$url] = $this->images->download($url);
+            } catch (\Throwable $exception) {
                 $downloads[$url] = null;
                 $warnings[] = sprintf('Image %s: %s', $url, $exception->getMessage());
             }
@@ -46,18 +48,26 @@ final class ProductImportService
                 // Delete orphans before inserting replacement rows with the same unique keys.
                 $this->entityManager->flush();
             }
-            foreach ($row->attributes as $key => $value) { $product->addAttribute(new ProductAttribute($key, $value)); }
-            foreach ($row->imageUrls as $url) { $product->addImage(new ProductImage($url, $downloads[$url]?->path)); }
+            foreach ($row->attributes as $key => $value) {
+                $product->addAttribute(new ProductAttribute($key, $value));
+            }
+            foreach ($row->imageUrls as $url) {
+                $product->addImage(new ProductImage($url, $downloads[$url]?->path));
+            }
             $this->entityManager->persist($product);
             $this->entityManager->flush();
             $connection->commit();
         } catch (\Throwable $exception) {
-            if ($connection->isTransactionActive()) { $connection->rollBack(); }
+            if ($connection->isTransactionActive()) {
+                $connection->rollBack();
+            }
             $this->entityManager->clear();
             foreach ($downloads as $download) {
                 if ($download?->newlyCreated) {
                     $path = $this->storagePath . '/' . $download->path;
-                    if (is_file($path)) { unlink($path); }
+                    if (is_file($path)) {
+                        unlink($path);
+                    }
                 }
             }
             throw $exception;

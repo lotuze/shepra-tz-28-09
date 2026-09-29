@@ -34,12 +34,27 @@ class ProductImage
         $this->path = $path;
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getProduct(): ?Product { return $this->product; }
-    public function getUrl(): string { return $this->url; }
-    public function getPath(): ?string { return $this->path; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+    public function getProduct(): ?Product
+    {
+        return $this->product;
+    }
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+    public function getPath(): ?string
+    {
+        return $this->path;
+    }
 
-    public function setProduct(Product $product): void { $this->product = $product; }
+    public function setProduct(Product $product): void
+    {
+        $this->product = $product;
+    }
 
     public function unsetProduct(Product $product): void
     {

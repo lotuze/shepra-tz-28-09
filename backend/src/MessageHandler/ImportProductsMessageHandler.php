@@ -10,7 +10,9 @@ use Psr\Log\LoggerInterface;
 
 final class ImportProductsMessageHandler
 {
-    public function __construct(private readonly ImportProcessor $processor, private readonly LoggerInterface $logger) {}
+    public function __construct(private readonly ImportProcessor $processor, private readonly LoggerInterface $logger)
+    {
+    }
 
     public function __invoke(ImportProductsMessage $message): void
     {

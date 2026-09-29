@@ -13,7 +13,8 @@ final class ProductImageController
     public function __construct(
         private readonly ProductImageRepository $images,
         private readonly string $storagePath,
-    ) {}
+    ) {
+    }
 
     /** @param array{id: string} $arguments */
     public function content(ServerRequestInterface $request, ResponseInterface $response, array $arguments): ResponseInterface

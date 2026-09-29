@@ -12,7 +12,9 @@ use Psr\Http\Message\ServerRequestInterface;
 
 final class AuthController
 {
-    public function __construct(private readonly UserRepository $users, private readonly JwtService $jwt) {}
+    public function __construct(private readonly UserRepository $users, private readonly JwtService $jwt)
+    {
+    }
 
     public function login(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {

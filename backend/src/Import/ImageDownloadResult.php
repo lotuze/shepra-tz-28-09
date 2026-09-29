@@ -6,5 +6,7 @@ namespace App\Import;
 
 final readonly class ImageDownloadResult
 {
-    public function __construct(public string $path, public bool $newlyCreated) {}
+    public function __construct(public string $path, public bool $newlyCreated)
+    {
+    }
 }

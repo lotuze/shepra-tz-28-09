@@ -14,7 +14,8 @@ final class ProductRowMapper
         private readonly DecimalNormalizer $decimals,
         private readonly DiscountCalculator $discounts,
         private readonly ImageUrlExtractor $images,
-    ) {}
+    ) {
+    }
 
     /** @param array<string, mixed> $data */
     public function map(array $data): ProductRow
@@ -23,9 +24,13 @@ final class ProductRowMapper
         $purchase = $this->decimals->normalize($data['Закупочная цена'] ?? null);
         $attributes = [];
         foreach ($data as $header => $value) {
-            if (!str_starts_with($header, self::PREFIX) || in_array($header, [self::PACKAGING, self::PHOTOS], true)) { continue; }
+            if (!str_starts_with($header, self::PREFIX) || in_array($header, [self::PACKAGING, self::PHOTOS], true)) {
+                continue;
+            }
             $value = is_scalar($value) ? trim((string) $value) : '';
-            if ($value !== '') { $attributes[substr($header, strlen(self::PREFIX))] = $value; }
+            if ($value !== '') {
+                $attributes[substr($header, strlen(self::PREFIX))] = $value;
+            }
         }
         return new ProductRow(
             trim((string) ($data['Внешний код'] ?? '')),

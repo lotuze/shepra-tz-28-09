@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Controller\AuthController;
+use App\Controller\ImportController;
 use App\Controller\ProductController;
 use App\Controller\ProductImageController;
-use App\Controller\ImportController;
-use App\Controller\AuthController;
-use App\Middleware\JwtAuthMiddleware;
 use App\Middleware\ImportRateLimitMiddleware;
+use App\Middleware\JwtAuthMiddleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Factory\AppFactory;

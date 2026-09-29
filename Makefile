@@ -1,4 +1,4 @@
-.PHONY: up down build logs shell migrate fixtures schema-validate test worker-logs worker-restart
+.PHONY: up down build logs shell migrate fixtures schema-validate test phpstan cs-check cs-fix openapi-validate worker-logs worker-restart
 
 up:
 	docker compose up -d
@@ -25,7 +25,19 @@ schema-validate:
 	docker compose exec app php bin/console orm:validate-schema
 
 test:
-	docker compose exec -e APP_ENV=test app vendor/bin/phpunit
+	docker compose exec -e APP_ENV=test app composer test
+
+phpstan:
+	docker compose exec app composer phpstan
+
+cs-check:
+	docker compose exec app composer cs-check
+
+cs-fix:
+	docker compose exec app composer cs-fix
+
+openapi-validate:
+	docker compose exec -e OPENAPI_SPEC=/docs/openapi.yaml -e OPENAPI_CONFIG=/docs/redocly.yaml frontend npm run openapi:validate
 
 worker-logs:
 	docker compose logs -f worker
