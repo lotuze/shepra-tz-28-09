@@ -10,7 +10,7 @@ services:
       APP_ENV: ${APP_ENV:-dev}
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@db:5432/${POSTGRES_DB:-app}?serverVersion=16&charset=utf8
       MESSENGER_TRANSPORT_DSN: amqp://${RABBITMQ_DEFAULT_USER:-app}:${RABBITMQ_DEFAULT_PASS:-app}@rabbitmq:5672/%2f
-    command: ["sh", "-c", "mkdir -p storage/imports storage/images && chown -R www-data:www-data storage && exec php-fpm"]
+    command: ["sh", "-c", "mkdir -p storage/imports storage/images storage/cache/doctrine-proxies && chown -R www-data:www-data storage && exec php-fpm"]
     volumes:
       - ./backend:/var/www/html
       - backend_vendor:/var/www/html/vendor

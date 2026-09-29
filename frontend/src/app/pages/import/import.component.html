@@ -1,0 +1,35 @@
+<section class="page-heading"><h1>Импорт XLSX</h1><p>Загрузите файл с товарами. Обработка продолжится в фоновом режиме.</p></section>
+<mat-card appearance="outlined" class="upload-card"><mat-card-content>
+  <input #fileInput hidden type="file" [disabled]="busy()" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" (change)="chooseFile($event)">
+  <div class="file-row">
+    <button mat-stroked-button type="button" (click)="fileInput.click()">Выбрать XLSX</button>
+    <span>{{ selectedFile()?.name || 'Файл не выбран' }}</span>
+    <button mat-flat-button color="primary" type="button" [disabled]="!selectedFile() || busy()" (click)="startImport()">{{ busy() ? 'Импорт выполняется…' : 'Запустить импорт' }}</button>
+  </div>
+  @if (selectionError()) { <p class="error" role="alert">{{ selectionError() }}</p> }
+</mat-card-content></mat-card>
+
+@if (viewModel$ | async; as vm) {
+  @if (vm.error) { <mat-card appearance="outlined" class="message error" role="alert"><span>{{ vm.error }}</span></mat-card> }
+  @if (vm.loading && !vm.job) { <mat-card appearance="outlined" class="progress-card"><p>Загружаем файл и создаём задачу…</p><mat-progress-bar mode="indeterminate" /></mat-card> }
+  @if (vm.job; as job) {
+    <mat-card appearance="outlined" class="progress-card">
+      <div class="status-row"><div><h2>Задача №{{ job.id }}</h2><p>{{ job.originalFilename }}</p></div><mat-chip [class]="'status-' + job.status">{{ statusLabel(job.status) }}</mat-chip></div>
+      <mat-progress-bar mode="determinate" [value]="job.progress" /><div class="progress-label">{{ job.progress }}%</div>
+      <dl class="counters"><div><dt>Всего</dt><dd>{{ job.totalRows }}</dd></div><div><dt>Обработано</dt><dd>{{ job.processedRows }}</dd></div><div><dt>Успешно</dt><dd>{{ job.successfulRows }}</dd></div><div><dt>Ошибок строк</dt><dd>{{ job.failedRows }}</dd></div></dl>
+      @if (job.fatalError) { <p class="error" role="alert">{{ job.fatalError }}</p> }
+      @if (isTerminal(job.status)) { <a mat-flat-button color="primary" routerLink="/products">Перейти к товарам</a> }
+    </mat-card>
+    @if (job.errors.length > 0) {
+      <mat-card appearance="outlined" class="errors-card"><mat-card-header><mat-card-title>Замечания и ошибки ({{ job.errorsTotal }})</mat-card-title></mat-card-header><mat-card-content class="table-wrap">
+        <table mat-table [dataSource]="job.errors">
+          <ng-container matColumnDef="severity"><th mat-header-cell *matHeaderCellDef>Тип</th><td mat-cell *matCellDef="let item"><span class="severity" [class.warning]="item.severity === 'warning'">{{ item.severity === 'warning' ? 'Предупреждение' : 'Ошибка' }}</span></td></ng-container>
+          <ng-container matColumnDef="row"><th mat-header-cell *matHeaderCellDef>Строка</th><td mat-cell *matCellDef="let item">{{ item.rowNumber ?? '—' }}</td></ng-container>
+          <ng-container matColumnDef="externalCode"><th mat-header-cell *matHeaderCellDef>Внешний код</th><td mat-cell *matCellDef="let item">{{ item.externalCode || '—' }}</td></ng-container>
+          <ng-container matColumnDef="message"><th mat-header-cell *matHeaderCellDef>Сообщение</th><td mat-cell *matCellDef="let item">{{ item.message }}</td></ng-container>
+          <tr mat-header-row *matHeaderRowDef="errorColumns"></tr><tr mat-row *matRowDef="let row; columns: errorColumns"></tr>
+        </table>
+      </mat-card-content></mat-card>
+    }
+  }
+}

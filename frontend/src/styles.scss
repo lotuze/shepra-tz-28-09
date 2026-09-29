@@ -1,5 +1,12 @@
-html,
-body {
-  margin: 0;
-  min-height: 100%;
+:root {
+  --error: #b3261e;
+  --link: #005cbb;
+  --muted: #626970;
+  --surface-hover: #f3f6fa;
 }
+
+html, body { margin: 0; min-height: 100%; }
+body { background: #f7f8fa; color: #1b1b1f; font-family: Roboto, "Helvetica Neue", Arial, sans-serif; }
+* { box-sizing: border-box; }
+a { color: var(--link); }
+button:focus-visible, a:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 3px solid #78a9ff; outline-offset: 2px; }

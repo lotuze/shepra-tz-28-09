@@ -1,0 +1,54 @@
+<a mat-button routerLink="/products">← К списку</a>
+
+@if (viewModel$ | async; as vm) {
+  @if (vm.loading) {
+    <div class="state"><mat-spinner diameter="48" /><span>Загружаем товар…</span></div>
+  } @else if (vm.error) {
+    <mat-card appearance="outlined" class="state error" role="alert">
+      <h1>{{ vm.notFound ? 'Товар не найден' : 'Ошибка загрузки' }}</h1>
+      <p>{{ vm.error }}</p>
+    </mat-card>
+  } @else if (vm.product; as product) {
+    <section class="heading">
+      <div><h1>{{ product.name }}</h1><p><code>{{ product.externalCode }}</code></p></div>
+      <div class="price"><strong>{{ product.price }} ₽</strong><mat-chip>Скидка {{ product.discount }}%</mat-chip></div>
+    </section>
+
+    <mat-card appearance="outlined"><mat-card-header><mat-card-title>Описание</mat-card-title></mat-card-header><mat-card-content><p class="description">{{ product.description }}</p></mat-card-content></mat-card>
+
+    <section class="details-grid">
+      <mat-card appearance="outlined">
+        <mat-card-header><mat-card-title>Характеристики</mat-card-title></mat-card-header>
+        <mat-card-content>
+          @if (product.attributes?.length) {
+            <table mat-table [dataSource]="product.attributes ?? []">
+              <ng-container matColumnDef="key"><th mat-header-cell *matHeaderCellDef>Параметр</th><td mat-cell *matCellDef="let attribute">{{ attribute.key | attributeLabel }}</td></ng-container>
+              <ng-container matColumnDef="value"><th mat-header-cell *matHeaderCellDef>Значение</th><td mat-cell *matCellDef="let attribute">{{ attribute.value || '—' }}</td></ng-container>
+              <tr mat-header-row *matHeaderRowDef="attributeColumns"></tr><tr mat-row *matRowDef="let row; columns: attributeColumns"></tr>
+            </table>
+          } @else { <p class="empty">Характеристики не указаны.</p> }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card appearance="outlined">
+        <mat-card-header><mat-card-title>Изображения</mat-card-title></mat-card-header>
+        <mat-card-content>
+          @if (product.images?.length) {
+            <div class="gallery">
+              @for (image of product.images; track image.id) {
+                <figure>
+                  @if (image.path && !failedImages.has(image.id)) {
+                    <img [src]="image.contentUrl" [alt]="product.name" (error)="markImageFailed(image.id)">
+                  } @else {
+                    <div class="placeholder"><span>Нет локального изображения</span></div>
+                  }
+                  <figcaption><a [href]="image.url" target="_blank" rel="noopener noreferrer">Исходный URL</a></figcaption>
+                </figure>
+              }
+            </div>
+          } @else { <p class="empty">Изображения отсутствуют.</p> }
+        </mat-card-content>
+      </mat-card>
+    </section>
+  }
+}

@@ -59,6 +59,7 @@ final class ProductController
                 'id' => $image->getId(),
                 'url' => $image->getUrl(),
                 'path' => $image->getPath(),
+                'contentUrl' => '/api/product-images/' . $image->getId() . '/content',
             ],
             $product->getImages()->toArray(),
         );

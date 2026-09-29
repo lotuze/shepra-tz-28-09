@@ -1,4 +1,7 @@
-main {
-  padding: 2rem;
-  font-family: system-ui, sans-serif;
-}
+.brand { align-items: center; color: inherit; display: flex; gap: 0.65rem; text-decoration: none; }
+.spacer { flex: 1; }
+nav { display: flex; gap: 0.25rem; }
+nav a { color: inherit; }
+nav a.active { background: rgb(255 255 255 / 16%); }
+main { margin: 0 auto; max-width: 1200px; padding: 2rem; }
+@media (max-width: 600px) { .brand span { display: none; } main { padding: 1rem; } }

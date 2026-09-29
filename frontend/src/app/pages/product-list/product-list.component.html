@@ -1,0 +1,48 @@
+<section class="page-heading">
+  <div><h1>Товары</h1><p>Каталог импортированных товаров</p></div>
+  <a mat-flat-button color="primary" routerLink="/import">Импортировать XLSX</a>
+</section>
+
+<mat-card appearance="outlined" class="filters-card">
+  <mat-card-content>
+    <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="filters">
+      <mat-form-field appearance="outline"><mat-label>Название</mat-label><input matInput formControlName="name" aria-label="Поиск по названию"></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Цена от</mat-label><input matInput formControlName="minPrice" inputmode="decimal" aria-label="Минимальная цена"></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Цена до</mat-label><input matInput formControlName="maxPrice" inputmode="decimal" aria-label="Максимальная цена"></mat-form-field>
+      <div class="filter-actions"><button mat-flat-button color="primary" type="submit">Применить</button><button mat-button type="button" (click)="resetFilters()">Сбросить</button></div>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+@if (viewModel$ | async; as vm) {
+  <mat-card appearance="outlined" class="results-card">
+    @if (vm.loading) {
+      <div class="state"><mat-spinner diameter="44" /><span>Загружаем товары…</span></div>
+    } @else if (vm.error) {
+      <div class="state error" role="alert"><span>{{ vm.error }}</span><button mat-button (click)="retry()">Повторить</button></div>
+    } @else if (vm.products.length === 0) {
+      <div class="state"><span>По заданным условиям товары не найдены.</span></div>
+    } @else {
+      <div class="table-wrap">
+        <table mat-table [dataSource]="vm.products">
+          <ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Название</th><td mat-cell *matCellDef="let product"><span class="product-name">{{ product.name }}</span></td></ng-container>
+          <ng-container matColumnDef="externalCode"><th mat-header-cell *matHeaderCellDef>Внешний код</th><td mat-cell *matCellDef="let product"><code>{{ product.externalCode }}</code></td></ng-container>
+          <ng-container matColumnDef="price"><th mat-header-cell *matHeaderCellDef>Цена</th><td mat-cell *matCellDef="let product">{{ product.price }} ₽</td></ng-container>
+          <ng-container matColumnDef="discount"><th mat-header-cell *matHeaderCellDef>Скидка</th><td mat-cell *matCellDef="let product">{{ product.discount }}%</td></ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            role="link"
+            tabindex="0"
+            [attr.aria-label]="'Открыть карточку товара ' + row.name"
+            (click)="openProduct(row.id)"
+            (keydown.enter)="openProduct(row.id)"
+            (keydown.space)="openProduct(row.id); $event.preventDefault()"></tr>
+        </table>
+      </div>
+    }
+    <mat-paginator [length]="vm.meta.total" [pageIndex]="vm.meta.page - 1" [pageSize]="vm.meta.limit" [pageSizeOptions]="[10, 20, 50]" [disabled]="vm.loading" aria-label="Пагинация списка товаров" (page)="changePage($event)" />
+    <div class="page-count">Страниц: {{ vm.totalPages }}</div>
+  </mat-card>
+}

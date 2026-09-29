@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use DI\ContainerBuilder;
 use App\Infrastructure\DatabaseConnectionParameters;
+use App\Controller\ProductImageController;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\ORM\EntityManager;
@@ -52,6 +53,10 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 $root = dirname(__DIR__);
+$proxyDir = $root . '/storage/cache/doctrine-proxies';
+if (!is_dir($proxyDir) && !mkdir($proxyDir, 0775, true) && !is_dir($proxyDir)) {
+    throw new RuntimeException('Unable to create Doctrine proxy directory.');
+}
 
 if (is_file($root . '/.env')) {
     Dotenv::createImmutable($root)->safeLoad();
@@ -59,10 +64,11 @@ if (is_file($root . '/.env')) {
 
 $builder = new ContainerBuilder();
 $builder->addDefinitions([
-    EntityManagerInterface::class => static function (): EntityManagerInterface {
+    EntityManagerInterface::class => static function () use ($proxyDir): EntityManagerInterface {
         $config = ORMSetup::createAttributeMetadataConfiguration(
             paths: [dirname(__DIR__) . '/src/Entity'],
             isDevMode: ($_ENV['APP_ENV'] ?? getenv('APP_ENV') ?: 'prod') !== 'prod',
+            proxyDir: $proxyDir,
         );
         $config->setSchemaAssetsFilter(static function (string|AbstractAsset $asset): bool {
             $name = $asset instanceof AbstractAsset ? $asset->getName() : $asset;
@@ -85,6 +91,10 @@ $builder->addDefinitions([
         $entityManager = $container->get(EntityManagerInterface::class);
         return new ProductImageRepository($entityManager, $entityManager->getClassMetadata(ProductImage::class));
     },
+    ProductImageController::class => static fn (ContainerInterface $container): ProductImageController => new ProductImageController(
+        $container->get(ProductImageRepository::class),
+        dirname(__DIR__) . '/storage',
+    ),
     ImportJobRepository::class => static function (ContainerInterface $container): ImportJobRepository {
         $entityManager = $container->get(EntityManagerInterface::class);
         return new ImportJobRepository($entityManager, $entityManager->getClassMetadata(ImportJob::class));
