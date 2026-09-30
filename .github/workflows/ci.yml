@@ -106,8 +106,14 @@ jobs:
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
-      - name: Build and start Compose stack
-        run: docker compose up -d --build
+      - name: Build Compose images
+        run: docker compose build
+      - name: Start infrastructure
+        run: docker compose up -d db rabbitmq
+      - name: Initialize backend application
+        run: docker compose up -d app
+      - name: Start remaining services
+        run: docker compose up -d worker nginx frontend
       - name: Wait for PostgreSQL and RabbitMQ health
         shell: bash
         run: |
