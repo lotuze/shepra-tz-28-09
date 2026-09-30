@@ -10,7 +10,7 @@ PostgreSQL хранит товары, состояние импорта, пол�
 
 ```bash
 git clone git@github.com:lotuze/shepra-tz-28-09.git
-cd shepra
+cd shepra-tz-28-09
 cp .env.example .env
 make build
 make up
