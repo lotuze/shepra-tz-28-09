@@ -1,25 +1,40 @@
+# IDE и окружение
 /.env
 /.idea/
+
+# Бек зависимости и кеш
 /backend/vendor/
 /backend/.phpunit.cache/
+
+# Рантайм бекенда
 /backend/storage/*
 !/backend/storage/.gitkeep
 !/backend/storage/cache/
 !/backend/storage/logs/
 !/backend/storage/imports/
 !/backend/storage/images/
+
 /backend/storage/cache/*
 !/backend/storage/cache/.gitkeep
+
 /backend/storage/logs/*
 !/backend/storage/logs/.gitkeep
+
 /backend/storage/imports/*
 !/backend/storage/imports/.gitkeep
+
 /backend/storage/images/*
 !/backend/storage/images/.gitkeep
+
+# Фронтенд зависимости
 /frontend/node_modules/
 /frontend/dist/
 /frontend/.angular/
+
+# Playwright отчеты и тд
 /frontend/playwright-report/
 /frontend/test-results/
 /frontend/.playwright/
+
+# Логи
 *.log
