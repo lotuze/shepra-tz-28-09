@@ -1,4 +1,4 @@
-.PHONY: up down build logs shell migrate fixtures schema-validate test phpstan cs-check cs-fix openapi-validate worker-logs worker-restart
+.PHONY: up down build logs shell migrate fixtures schema-validate test phpstan cs-check cs-fix openapi-validate e2e-install e2e worker-logs worker-restart
 
 up:
 	docker compose up -d
@@ -38,6 +38,12 @@ cs-fix:
 
 openapi-validate:
 	docker compose exec -e OPENAPI_SPEC=/docs/openapi.yaml -e OPENAPI_CONFIG=/docs/redocly.yaml frontend npm run openapi:validate
+
+e2e-install:
+	cd frontend && npx playwright install chromium
+
+e2e:
+	cd frontend && npm run e2e
 
 worker-logs:
 	docker compose logs -f worker

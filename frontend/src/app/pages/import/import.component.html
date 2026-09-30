@@ -1,6 +1,6 @@
 <section class="page-heading"><h1>Импорт XLSX</h1><p>Загрузите файл с товарами. Обработка продолжится в фоновом режиме.</p></section>
 <mat-card appearance="outlined" class="upload-card"><mat-card-content>
-  <input #fileInput hidden type="file" [disabled]="busy()" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" (change)="chooseFile($event)">
+  <input #fileInput hidden type="file" aria-label="Файл XLSX" [disabled]="busy()" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" (change)="chooseFile($event)">
   <div class="file-row">
     <button mat-stroked-button type="button" (click)="fileInput.click()">Выбрать XLSX</button>
     <span>{{ selectedFile()?.name || 'Файл не выбран' }}</span>
@@ -15,8 +15,8 @@
   @if (vm.job; as job) {
     <mat-card appearance="outlined" class="progress-card">
       <div class="status-row"><div><h2>Задача №{{ job.id }}</h2><p>{{ job.originalFilename }}</p></div><mat-chip [class]="'status-' + job.status">{{ statusLabel(job.status) }}</mat-chip></div>
-      <mat-progress-bar mode="determinate" [value]="job.progress" /><div class="progress-label">{{ job.progress }}%</div>
-      <dl class="counters"><div><dt>Всего</dt><dd>{{ job.totalRows }}</dd></div><div><dt>Обработано</dt><dd>{{ job.processedRows }}</dd></div><div><dt>Успешно</dt><dd>{{ job.successfulRows }}</dd></div><div><dt>Ошибок строк</dt><dd>{{ job.failedRows }}</dd></div></dl>
+      <mat-progress-bar mode="determinate" [value]="job.progress" /><div class="progress-label" data-testid="import-progress">{{ job.progress }}%</div>
+      <dl class="counters"><div><dt>Всего</dt><dd data-testid="total-rows">{{ job.totalRows }}</dd></div><div><dt>Обработано</dt><dd data-testid="processed-rows">{{ job.processedRows }}</dd></div><div><dt>Успешно</dt><dd data-testid="successful-rows">{{ job.successfulRows }}</dd></div><div><dt>Ошибок строк</dt><dd data-testid="failed-rows">{{ job.failedRows }}</dd></div></dl>
       @if (job.fatalError) { <p class="error" role="alert">{{ job.fatalError }}</p> }
       @if (isTerminal(job.status)) { <a mat-flat-button color="primary" routerLink="/products">Перейти к товарам</a> }
     </mat-card>

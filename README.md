@@ -46,6 +46,27 @@ Doctrine migrations and schema validation, PHPUnit, Angular unit tests and
 production build, and OpenAPI validation. CI uses PHP 8.3, Node.js 22, and
 PostgreSQL 16; it does not deploy or publish images.
 
+## Browser e2e
+
+Playwright e2e run on the host with Node.js 22 and Chromium. Install the browser
+once, then start and prepare the real Compose stack before running the suite:
+
+```bash
+make e2e-install
+make up
+make migrate
+make fixtures
+make e2e
+```
+
+The tests use the real Angular application, API, PostgreSQL, RabbitMQ, and
+Messenger worker. They cover login/session/logout, route protection, product
+filtering, server pagination and detail navigation, plus valid and invalid XLSX
+imports. The deterministic `frontend/e2e/fixtures/import-e2e.xlsx` contains no
+image URLs, so e2e import does not access external image servers. On failure the
+HTML report is written to `frontend/playwright-report`; traces and screenshots
+are written under `frontend/test-results`. Both directories are ignored by Git.
+
 ## Authentication and API
 
 Authenticate first with `POST /api/auth/login`. Pass the returned token as
