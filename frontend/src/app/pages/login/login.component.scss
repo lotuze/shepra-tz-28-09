@@ -1,4 +1,17 @@
-.login-card { max-width: 420px; margin: 64px auto; }
-form { display: grid; gap: 12px; padding-top: 20px; }
-.login-error { color: var(--mat-sys-error); margin: 0; }
+:host { align-items: center; display: flex; justify-content: center; min-height: calc(100vh - 144px); }
+
+.login-card { border: 1px solid var(--app-border); box-shadow: var(--app-shadow); max-width: 500px; width: 100%; }
+.login-card mat-card-header { padding: 2rem 2rem 0; }
+.login-card mat-card-title { font-size: 1.75rem; font-weight: 700; }
+.login-card mat-card-content { padding: 0 2rem 2rem; }
+form { display: grid; gap: 1rem; padding-top: 1.75rem; }
+.login-error { color: var(--app-danger); font-size: 0.9375rem; margin: -0.25rem 0 0; }
+button[type='submit'] { margin-top: 0.25rem; width: 100%; }
 button mat-spinner { display: inline-block; }
+
+@media (max-width: 600px) {
+  :host { min-height: calc(100vh - 166px); }
+  .login-card { width: calc(100% - 0px); }
+  .login-card mat-card-header { padding: 1.5rem 1.5rem 0; }
+  .login-card mat-card-content { padding: 0 1.5rem 1.5rem; }
+}

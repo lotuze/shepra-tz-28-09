@@ -4,7 +4,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, map, of, shareReplay, startWith, switchMap } from 'rxjs';
 import { ApiError } from '../../core/api-error';
@@ -22,7 +21,7 @@ interface ProductDetailView {
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [AsyncPipe, AttributeLabelPipe, MatButtonModule, MatCardModule, MatChipsModule, MatProgressSpinnerModule, MatTableModule, RouterLink],
+  imports: [AsyncPipe, AttributeLabelPipe, MatButtonModule, MatCardModule, MatChipsModule, MatProgressSpinnerModule, RouterLink],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,7 +29,6 @@ interface ProductDetailView {
 export class ProductDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly products = inject(ProductService);
-  readonly attributeColumns = ['key', 'value'];
   readonly failedImages = new Set<number>();
   readonly viewModel$ = this.route.paramMap.pipe(
     map((params) => Number(params.get('id'))),

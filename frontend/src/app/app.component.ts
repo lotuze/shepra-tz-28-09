@@ -10,18 +10,19 @@ import { AuthService } from './services/auth.service';
   imports: [MatButtonModule, MatToolbarModule, RouterLink, RouterLinkActive, RouterOutlet],
   template: `
     <mat-toolbar color="primary">
-      <a class="brand" routerLink="/products" aria-label="Перейти к списку товаров">
-        <span>Импорт товаров</span>
-      </a>
-      <span class="spacer"></span>
-      @if (auth.currentUser(); as user) {
-        <nav aria-label="Основная навигация">
-          <a mat-button routerLink="/products" routerLinkActive="active">Товары</a>
-          <a mat-button routerLink="/import" routerLinkActive="active">Импорт</a>
-        </nav>
-        <span class="user-email">{{ user.email }}</span>
-        <button mat-button type="button" (click)="logout()">Выйти</button>
-      }
+      <div class="toolbar-inner">
+        <a class="brand" routerLink="/products" aria-label="Перейти к списку товаров">Импорт товаров</a>
+        @if (auth.currentUser(); as user) {
+          <nav aria-label="Основная навигация">
+            <a mat-button routerLink="/products" routerLinkActive="active">Товары</a>
+            <a mat-button routerLink="/import" routerLinkActive="active">Импорт</a>
+          </nav>
+          <div class="account">
+            <span class="user-email">{{ user.email }}</span>
+            <button class="logout-button" mat-stroked-button type="button" (click)="logout()">Выйти</button>
+          </div>
+        }
+      </div>
     </mat-toolbar>
     <main><router-outlet /></main>
   `,

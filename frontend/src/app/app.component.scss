@@ -1,8 +1,61 @@
-.brand { align-items: center; color: inherit; display: flex; gap: 0.65rem; text-decoration: none; }
-.spacer { flex: 1; }
-.user-email { font-size: 0.875rem; margin-left: 1rem; }
-nav { display: flex; gap: 0.25rem; }
-nav a { color: inherit; }
-nav a.active { background: rgb(255 255 255 / 16%); }
-main { margin: 0 auto; max-width: 1200px; padding: 2rem; }
-@media (max-width: 600px) { .brand span { display: none; } main { padding: 1rem; } }
+@use '@angular/material' as mat;
+
+:host { display: block; min-height: 100vh; }
+
+mat-toolbar {
+  background: var(--app-header);
+  border-bottom: 1px solid var(--app-border);
+  color: var(--app-text);
+  height: auto;
+  min-height: 72px;
+  padding: 0;
+}
+
+.toolbar-inner {
+  align-items: center;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr auto 1fr;
+  margin: 0 auto;
+  max-width: 1280px;
+  min-height: 72px;
+  padding: 0 2rem;
+  width: 100%;
+}
+
+.brand {
+  color: var(--app-text);
+  font-size: 1.125rem;
+  font-weight: 700;
+  justify-self: start;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+nav { display: flex; gap: 0.35rem; justify-self: center; }
+nav a { color: var(--app-muted); font-size: 1rem; }
+nav a:hover { color: var(--app-text); }
+nav a.active { background: var(--app-primary-soft); color: #ddd2ff; }
+
+.account { align-items: center; display: flex; gap: 1rem; justify-self: end; }
+.user-email { color: var(--app-muted); font-size: 0.875rem; }
+.logout-button {
+  @include mat.button-overrides((
+    outlined-label-text-color: #ef5b67,
+    outlined-outline-color: #ef5b67,
+    outlined-state-layer-color: #dc3545,
+  ));
+}
+.logout-button:hover { background: var(--app-danger-hover); }
+
+main { margin: 0 auto; max-width: 1280px; padding: 2.25rem 2rem 3rem; }
+
+@media (max-width: 760px) {
+  mat-toolbar { min-height: auto; }
+  .toolbar-inner { gap: 0.75rem 1rem; grid-template-columns: 1fr auto; padding: 0.75rem 1rem; }
+  .brand { font-size: 1rem; }
+  nav { grid-column: 1 / -1; grid-row: 2; justify-self: center; order: 3; }
+  .account { grid-column: 2; grid-row: 1; }
+  .user-email { display: none; }
+  main { padding: 1.5rem 1rem 2rem; }
+}

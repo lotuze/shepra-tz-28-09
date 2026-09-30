@@ -6,10 +6,12 @@
 <mat-card appearance="outlined" class="filters-card">
   <mat-card-content>
     <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="filters">
-      <mat-form-field appearance="outline"><mat-label>Название</mat-label><input matInput formControlName="name" aria-label="Поиск по названию"></mat-form-field>
-      <mat-form-field appearance="outline"><mat-label>Цена от</mat-label><input matInput formControlName="minPrice" inputmode="decimal" aria-label="Минимальная цена"></mat-form-field>
-      <mat-form-field appearance="outline"><mat-label>Цена до</mat-label><input matInput formControlName="maxPrice" inputmode="decimal" aria-label="Максимальная цена"></mat-form-field>
-      <div class="filter-actions"><button mat-flat-button color="primary" type="submit">Применить</button><button mat-button type="button" (click)="resetFilters()">Сбросить</button></div>
+      <mat-form-field class="name-field" appearance="outline"><mat-label>Название</mat-label><input matInput formControlName="name" aria-label="Поиск по названию"></mat-form-field>
+      <div class="price-fields">
+        <mat-form-field appearance="outline"><mat-label>Цена от</mat-label><input matInput formControlName="minPrice" inputmode="decimal" aria-label="Минимальная цена"></mat-form-field>
+        <mat-form-field appearance="outline"><mat-label>Цена до</mat-label><input matInput formControlName="maxPrice" inputmode="decimal" aria-label="Максимальная цена"></mat-form-field>
+      </div>
+      <div class="filter-actions"><button mat-stroked-button type="button" (click)="resetFilters()">Сбросить</button><button mat-flat-button color="primary" type="submit">Применить</button></div>
     </form>
   </mat-card-content>
 </mat-card>
@@ -27,8 +29,8 @@
         <table mat-table [dataSource]="vm.products">
           <ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Название</th><td mat-cell *matCellDef="let product"><span class="product-name">{{ product.name }}</span></td></ng-container>
           <ng-container matColumnDef="externalCode"><th mat-header-cell *matHeaderCellDef>Внешний код</th><td mat-cell *matCellDef="let product"><code>{{ product.externalCode }}</code></td></ng-container>
-          <ng-container matColumnDef="price"><th mat-header-cell *matHeaderCellDef>Цена</th><td mat-cell *matCellDef="let product">{{ product.price }} ₽</td></ng-container>
-          <ng-container matColumnDef="discount"><th mat-header-cell *matHeaderCellDef>Скидка</th><td mat-cell *matCellDef="let product">{{ product.discount }}%</td></ng-container>
+          <ng-container matColumnDef="price"><th mat-header-cell *matHeaderCellDef>Цена</th><td class="numeric-cell" mat-cell *matCellDef="let product"><span class="nowrap">{{ product.price }} ₽</span></td></ng-container>
+          <ng-container matColumnDef="discount"><th mat-header-cell *matHeaderCellDef>Скидка</th><td class="numeric-cell" mat-cell *matCellDef="let product">{{ product.discount }}%</td></ng-container>
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr
             mat-row

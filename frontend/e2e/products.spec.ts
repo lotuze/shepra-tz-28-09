@@ -36,7 +36,7 @@ test.describe('Товары', () => {
     await expect(page.getByRole('heading', { name: 'Бермуды 01' })).toBeVisible();
     await expect(page.getByText('425.00 ₽')).toBeVisible();
     await expect(page.getByText('Размер')).toBeVisible();
-    await page.getByRole('link', { name: '← К списку' }).click();
+    await page.getByRole('link', { name: '< К списку' }).click();
     await expect(page).toHaveURL(/\/products$/);
   });
 });
